@@ -1,0 +1,26 @@
+{
+  "name": "ai-pr",
+  "version": "0.1.0",
+  "description": "Generate a PR description from your branch diff with AI and open a prefilled GitHub PR page.",
+  "type": "module",
+  "bin": {
+    "ai-pr": "bin/ai-pr.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "keywords": [
+    "git",
+    "github",
+    "pull-request",
+    "pr",
+    "ai",
+    "gemini",
+    "cli"
+  ],
+  "license": "MIT"
+}
