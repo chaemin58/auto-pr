@@ -171,7 +171,7 @@ ${diff}`;
   // 들쭉날쭉 나므로, 한 모델이 안 되면 다음 모델로 넘어간다.
   for (const model of models) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const maxAttempts = 3;
+    const maxAttempts = 2; // 모델이 여러 개이므로 503 재시도는 1회만, 빠르게 다음으로
     let moveToNextModel = false;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -286,9 +286,18 @@ async function main() {
   }
   // 명시적으로 모델을 지정하면 그것만, 아니면 폴백 체인을 순서대로 시도
   const explicit = opts.model || process.env.AI_PR_MODEL;
+  // 무료 티어는 모델별로 할당량이 따로라, 여러 모델을 순서대로 시도해
+  // 하나가 429(할당량)/404(폐기)/503(과부하)여도 다음 모델로 넘어간다.
   const models = explicit
     ? [explicit]
-    : ["gemini-2.0-flash", "gemini-2.5-flash-lite", "gemini-flash-latest"];
+    : [
+        "gemini-2.0-flash-lite",
+        "gemini-2.0-flash",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-flash-lite-latest",
+        "gemini-flash-latest",
+      ];
 
   console.error("AI가 PR 본문 생성 중...");
   const body = await generateBody({ apiKey, models, log, diff });
