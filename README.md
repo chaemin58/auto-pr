@@ -23,7 +23,22 @@ npx ai-pr
 
 ## 사전 준비 (딱 한 번)
 
-[Google AI Studio](https://aistudio.google.com/apikey)에서 API 키를 발급받아 환경변수에 저장하세요.
+[Google AI Studio](https://aistudio.google.com/apikey)에서 API 키를 발급받아 아래 중 **한 가지** 방법으로 저장하세요.
+
+### 방법 A) `.env` 파일에 넣기 (추천 · 간편)
+
+**전역**으로 한 번만 설정하면 어느 프로젝트에서든 동작합니다. 홈 폴더에 `~/.ai-pr.env` 파일을 만들고:
+
+```
+GEMINI_API_KEY=발급받은키
+```
+
+특정 프로젝트에서만 쓰려면 그 프로젝트 폴더의 `.env.local` 또는 `.env`에 같은 줄을 넣어도 됩니다.
+읽는 우선순위: 현재 폴더 `.env.local` → `.env` → 전역 `~/.ai-pr.env`.
+
+> ⚠️ 키는 비밀번호입니다. `.env*` 파일이 `.gitignore`에 포함돼 있는지 꼭 확인하세요.
+
+### 방법 B) 시스템 환경변수에 넣기
 
 **Windows (PowerShell):**
 

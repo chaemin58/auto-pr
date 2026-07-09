@@ -4,6 +4,9 @@
 
 import { execFileSync } from "node:child_process";
 import { spawn } from "node:child_process";
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 
 const HELP = `ai-pr — AI로 PR 본문을 만들어 GitHub PR 생성 페이지를 미리 채워 엽니다.
 
@@ -22,11 +25,18 @@ const HELP = `ai-pr — AI로 PR 본문을 만들어 GitHub PR 생성 페이지�
                         https://aistudio.google.com/apikey
   AI_PR_BASE            base 브랜치 기본값 (--base 로 덮어씀)
   AI_PR_MODEL           모델 기본값 (--model 로 덮어씀)
+
+  위 값들은 아래 파일에서도 읽습니다 (KEY=VALUE 형식):
+    현재 폴더의 .env.local, .env  또는  전역 ~/.ai-pr.env
 `;
 
+// 예상된 실패는 이 에러로 던지고 최상단에서 한 번만 처리한다.
+// (process.exit()를 fetch 직후 호출하면 Windows에서 libuv assertion이 나므로
+//  exitCode만 지정하고 이벤트 루프가 자연스럽게 끝나도록 둔다.)
+class CliError extends Error {}
+
 function fail(msg) {
-  console.error(`\x1b[31m${msg}\x1b[0m`);
-  process.exit(1);
+  throw new CliError(msg);
 }
 
 // 간단한 인자 파서 (의존성 없이)
@@ -42,6 +52,40 @@ function parseArgs(argv) {
     else fail(`알 수 없는 옵션: ${a}\n\n${HELP}`);
   }
   return opts;
+}
+
+// .env 파일에서 환경변수 로드 (의존성 없이). 이미 설정된 값은 덮지 않음.
+// 우선순위: 현재 폴더 .env.local > .env > 전역 ~/.ai-pr.env
+function loadEnvFiles() {
+  const files = [
+    join(process.cwd(), ".env.local"),
+    join(process.cwd(), ".env"),
+    join(homedir(), ".ai-pr.env"),
+  ];
+  for (const file of files) {
+    if (!existsSync(file)) continue;
+    let content;
+    try {
+      content = readFileSync(file, "utf8");
+    } catch {
+      continue;
+    }
+    for (const line of content.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      let val = trimmed.slice(eq + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (key && !(key in process.env)) process.env[key] = val;
+    }
+  }
 }
 
 function git(args) {
@@ -144,6 +188,8 @@ async function main() {
     return;
   }
 
+  loadEnvFiles();
+
   // git 저장소인지 확인
   try {
     git(["rev-parse", "--is-inside-work-tree"]);
@@ -218,4 +264,8 @@ async function main() {
   }
 }
 
-main().catch((e) => fail(e?.stack || String(e)));
+main().catch((e) => {
+  const msg = e instanceof CliError ? e.message : e?.stack || String(e);
+  console.error(`\x1b[31m${msg}\x1b[0m`);
+  process.exitCode = 1;
+});
