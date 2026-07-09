@@ -72,18 +72,21 @@ function loadEnvFiles() {
     }
     content = content.replace(/^﻿/, ""); // BOM 제거 (PowerShell Out-File utf8 대비)
     for (const line of content.split(/\r?\n/)) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const eq = trimmed.indexOf("=");
-      if (eq === -1) continue;
-      const key = trimmed.slice(0, eq).trim();
-      let val = trimmed.slice(eq + 1).trim();
+      let entry = line.trim();
+      if (!entry || entry.startsWith("#")) continue;
+      // 줄 전체가 따옴표로 감싸진 경우 벗겨냄 (예: "KEY=VALUE")
       if (
-        (val.startsWith('"') && val.endsWith('"')) ||
-        (val.startsWith("'") && val.endsWith("'"))
+        entry.length >= 2 &&
+        ((entry[0] === '"' && entry[entry.length - 1] === '"') ||
+          (entry[0] === "'" && entry[entry.length - 1] === "'"))
       ) {
-        val = val.slice(1, -1);
+        entry = entry.slice(1, -1);
       }
+      const eq = entry.indexOf("=");
+      if (eq === -1) continue;
+      // 키/값에 잘못 붙은 감싸는 따옴표 제거 (사용자 실수 방어)
+      const key = entry.slice(0, eq).trim().replace(/^["']+|["']+$/g, "");
+      let val = entry.slice(eq + 1).trim().replace(/^["']+|["']+$/g, "");
       if (key && !(key in process.env)) process.env[key] = val;
     }
   }
