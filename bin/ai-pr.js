@@ -70,6 +70,7 @@ function loadEnvFiles() {
     } catch {
       continue;
     }
+    content = content.replace(/^﻿/, ""); // BOM 제거 (PowerShell Out-File utf8 대비)
     for (const line of content.split(/\r?\n/)) {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith("#")) continue;
