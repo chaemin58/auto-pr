@@ -137,9 +137,13 @@ function detectRepo() {
 
 function openUrl(url) {
   if (process.platform === "win32") {
-    // cmd의 'start'는 URL 속 &/% 를 명령 구문으로 오해해 잘라먹으므로 explorer로 연다.
-    // explorer는 URL을 인자 그대로 기본 브라우저에 넘겨 & % 가 보존된다.
-    spawn("explorer.exe", [url], { detached: true, stdio: "ignore" }).unref();
+    // PowerShell Start-Process가 기본 브라우저로 URL을 안정적으로 연다.
+    // URL은 작은따옴표로 감싸 &/% 가 PowerShell 구문으로 해석되지 않게 한다.
+    // (cmd start는 &/%, explorer는 못 알아들으면 문서 폴더를 여는 문제가 있음)
+    spawn("powershell", ["-NoProfile", "-Command", `Start-Process '${url}'`], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
   } else {
     const cmd = process.platform === "darwin" ? "open" : "xdg-open";
     spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
@@ -313,14 +317,18 @@ async function main() {
 
   // 브라우저/GitHub URL 길이 한계 → 너무 길면 본문만 출력하고 빈 창을 엶
   if (encoded.length > 6000) {
-    openUrl(`${baseCompareUrl}?expand=1`);
-    console.log(
-      "\n본문이 길어 URL로 못 넣었습니다. 아래 내용을 복사해 PR 본문칸에 붙여넣으세요:\n"
-    );
+    const url = `${baseCompareUrl}?expand=1`;
+    openUrl(url);
+    console.error("\n본문이 길어 URL에 못 담았습니다. 아래 본문을 PR 창에 붙여넣으세요:");
+    console.error(`(PR 생성 페이지: ${url} )\n`);
     console.log(body);
   } else {
-    openUrl(`${baseCompareUrl}?expand=1&body=${encoded}`);
+    const url = `${baseCompareUrl}?expand=1&body=${encoded}`;
+    openUrl(url);
     console.error("PR 생성 창을 열었습니다. 내용 확인/수정 후 제출하세요.");
+    // 자동 열기가 실패하는 환경 대비: 링크를 항상 출력
+    console.error("\n창이 안 열리면 아래 링크를 브라우저 주소창에 붙여넣으세요:");
+    console.error(url);
   }
 }
 
