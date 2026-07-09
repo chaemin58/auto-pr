@@ -137,8 +137,9 @@ function detectRepo() {
 
 function openUrl(url) {
   if (process.platform === "win32") {
-    // 'start'의 첫 인자는 창 제목이라 빈 문자열을 넣어줘야 URL이 인자로 안 먹힘
-    spawn("cmd", ["/c", "start", "", url], { detached: true, stdio: "ignore" }).unref();
+    // cmd의 'start'는 URL 속 &/% 를 명령 구문으로 오해해 잘라먹으므로 explorer로 연다.
+    // explorer는 URL을 인자 그대로 기본 브라우저에 넘겨 & % 가 보존된다.
+    spawn("explorer.exe", [url], { detached: true, stdio: "ignore" }).unref();
   } else {
     const cmd = process.platform === "darwin" ? "open" : "xdg-open";
     spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
