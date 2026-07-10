@@ -85,8 +85,14 @@ function loadEnvFiles() {
       const eq = entry.indexOf("=");
       if (eq === -1) continue;
       // 키/값에 잘못 붙은 감싸는 따옴표 제거 (사용자 실수 방어)
-      const key = entry.slice(0, eq).trim().replace(/^["']+|["']+$/g, "");
-      let val = entry.slice(eq + 1).trim().replace(/^["']+|["']+$/g, "");
+      const key = entry
+        .slice(0, eq)
+        .trim()
+        .replace(/^["']+|["']+$/g, "");
+      let val = entry
+        .slice(eq + 1)
+        .trim()
+        .replace(/^["']+|["']+$/g, "");
       if (key && !(key in process.env)) process.env[key] = val;
     }
   }
@@ -106,7 +112,9 @@ function resolveBaseRef(base) {
       /* 다음 후보 */
     }
   }
-  fail(`base 브랜치 '${base}' (또는 'origin/${base}')를 찾을 수 없습니다. --base 로 지정하세요.`);
+  fail(
+    `base 브랜치 '${base}' (또는 'origin/${base}')를 찾을 수 없습니다. --base 로 지정하세요.`,
+  );
 }
 
 // origin 원격의 기본 브랜치 자동 감지 → 실패 시 develop/main/master 순으로 탐색
@@ -156,12 +164,13 @@ async function generateBody({ apiKey, models, log, diff }) {
 규칙:
 - 반드시 아래 두 섹션만, 이 제목 그대로 포함해줘.
 - 간결하게, 불필요한 서론/맺음말 없이 본문만 출력해줘.
+- 너무 길게 써주는 걸 지양하고 간단하게 작성해줘. 
 
 ## 작업 내용
-- (핵심 변경사항을 항목별로. diff에 근거해서만)
+- (핵심 변경사항을 항목별로. diff에 근거해서만. 세부 변경사항 (오타 수정 등)은 기입할 필요없음. 핵심 변경 사항만 간단히)
 
 ## 테스트 방법
-- (변경사항을 확인할 수 있는 단계별 절차 제안. AI 추정임을 감안해 검증 위주로)
+- (변경사항을 확인할 수 있는 단계별 절차 제안. AI 추정임을 감안해 검증 위주로 간단히 작성)
 
 [커밋 목록]
 ${log}
@@ -215,7 +224,9 @@ ${diff}`;
       // 503(과부하)/429(레이트리밋)은 일시적이므로 잠깐 뒤 재시도
       if ((res.status === 503 || res.status === 429) && attempt < maxAttempts) {
         const waitMs = 1200 * attempt;
-        console.error(`모델 '${model}' 과부하(${res.status}) — ${waitMs}ms 후 재시도`);
+        console.error(
+          `모델 '${model}' 과부하(${res.status}) — ${waitMs}ms 후 재시도`,
+        );
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
@@ -252,14 +263,18 @@ async function main() {
   const base = opts.base || process.env.AI_PR_BASE || detectBaseBranch();
   if (!base) fail("base 브랜치를 감지하지 못했습니다. --base 로 지정하세요.");
   if (branch === base) {
-    fail(`현재 '${base}' 브랜치입니다. PR을 만들 기능 브랜치로 이동한 뒤 실행하세요.`);
+    fail(
+      `현재 '${base}' 브랜치입니다. PR을 만들 기능 브랜치로 이동한 뒤 실행하세요.`,
+    );
   }
 
   const { owner, repo } = detectRepo();
 
   // base 최신화 (오프라인/원격 없음 등은 조용히 무시하고 로컬 기준으로 진행)
   try {
-    execFileSync("git", ["fetch", "origin", base, "--quiet"], { stdio: "ignore" });
+    execFileSync("git", ["fetch", "origin", base, "--quiet"], {
+      stdio: "ignore",
+    });
   } catch {
     /* 무시 */
   }
@@ -271,7 +286,8 @@ async function main() {
   if (!diff.trim()) fail(`${baseRef} 대비 변경사항이 없습니다.`);
 
   const MAX_DIFF = 12000;
-  if (diff.length > MAX_DIFF) diff = diff.slice(0, MAX_DIFF) + "\n... (이하 생략)";
+  if (diff.length > MAX_DIFF)
+    diff = diff.slice(0, MAX_DIFF) + "\n... (이하 생략)";
 
   if (opts.dryRun) {
     console.log(`repo:   ${owner}/${repo}`);
@@ -286,7 +302,7 @@ async function main() {
   if (!apiKey) {
     fail(
       "GEMINI_API_KEY 환경변수가 없습니다.\n" +
-        "https://aistudio.google.com/apikey 에서 키를 발급받아 설정하세요."
+        "https://aistudio.google.com/apikey 에서 키를 발급받아 설정하세요.",
     );
   }
   // 명시적으로 모델을 지정하면 그것만, 아니면 폴백 체인을 순서대로 시도
@@ -319,7 +335,9 @@ async function main() {
   if (encoded.length > 6000) {
     const url = `${baseCompareUrl}?expand=1`;
     openUrl(url);
-    console.error("\n본문이 길어 URL에 못 담았습니다. 아래 본문을 PR 창에 붙여넣으세요:");
+    console.error(
+      "\n본문이 길어 URL에 못 담았습니다. 아래 본문을 PR 창에 붙여넣으세요:",
+    );
     console.error(`(PR 생성 페이지: ${url} )\n`);
     console.log(body);
   } else {
@@ -327,7 +345,9 @@ async function main() {
     openUrl(url);
     console.error("PR 생성 창을 열었습니다. 내용 확인/수정 후 제출하세요.");
     // 자동 열기가 실패하는 환경 대비: 링크를 항상 출력
-    console.error("\n창이 안 열리면 아래 링크를 브라우저 주소창에 붙여넣으세요:");
+    console.error(
+      "\n창이 안 열리면 아래 링크를 브라우저 주소창에 붙여넣으세요:",
+    );
     console.error(url);
   }
 }
