@@ -1,4 +1,4 @@
-# ai-pr
+# auto-pr
 
 브랜치의 변경사항(diff)을 AI(Gemini)로 요약해 **PR 본문(작업 내용 / 테스트 방법)** 을 만들고,
 내용이 **미리 채워진 GitHub PR 생성 페이지**를 브라우저로 열어줍니다.
@@ -9,20 +9,17 @@
 
 ## 설치
 
-아직 npm 레지스트리에는 올리지 않았습니다. **GitHub에서 직접 전역 설치**하세요:
+```bash
+npm install -g auto-pr
+```
+
+또는 npm 레지스트리 대신 **GitHub에서 직접** 설치할 수도 있습니다:
 
 ```bash
 npm install -g github:chaemin58/auto-pr
 ```
 
-> ⚠️ `npm install -g ai-pr` (npm 레지스트리)는 아직 동작하지 않습니다.
-> 이 도구를 `npm publish` 하기 전까지는 위의 GitHub 설치를 사용하세요.
-
-**업데이트**(도구가 수정되면 다시 실행):
-
-```bash
-npm install -g github:chaemin58/auto-pr
-```
+설치하면 `auto-pr` 명령이 등록됩니다. (`ai-pr` 로도 실행 가능)
 
 ## 사전 준비 (딱 한 번)
 
@@ -30,14 +27,14 @@ npm install -g github:chaemin58/auto-pr
 
 ### 방법 A) `.env` 파일에 넣기 (추천 · 간편)
 
-**전역**으로 한 번만 설정하면 어느 프로젝트에서든 동작합니다. 홈 폴더에 `~/.ai-pr.env` 파일을 만들고:
+**전역**으로 한 번만 설정하면 어느 프로젝트에서든 동작합니다. 홈 폴더에 `~/.auto-pr.env` 파일을 만들고:
 
 ```
 GEMINI_API_KEY=발급받은키
 ```
 
 특정 프로젝트에서만 쓰려면 그 프로젝트 폴더의 `.env.local` 또는 `.env`에 같은 줄을 넣어도 됩니다.
-읽는 우선순위: 현재 폴더 `.env.local` → `.env` → 전역 `~/.ai-pr.env`.
+읽는 우선순위: 현재 폴더 `.env.local` → `.env` → 전역 `~/.auto-pr.env`.
 
 > ⚠️ 키는 비밀번호입니다. `.env*` 파일이 `.gitignore`에 포함돼 있는지 꼭 확인하세요.
 
@@ -62,11 +59,11 @@ source ~/.zshrc
 PR을 만들 **기능 브랜치**에서 실행하세요.
 
 ```bash
-ai-pr                 # base 브랜치 자동 감지 (origin 기본 브랜치)
-ai-pr --base main     # base 브랜치 지정
-ai-pr --print         # 브라우저 대신 콘솔에 본문만 출력
-ai-pr --dry-run       # AI 호출 없이 감지된 정보만 확인
-ai-pr --help
+auto-pr                 # base 브랜치 자동 감지 (origin 기본 브랜치)
+auto-pr --base main     # base 브랜치 지정
+auto-pr --print         # 브라우저 대신 콘솔에 본문만 출력
+auto-pr --dry-run       # AI 호출 없이 감지된 정보만 확인
+auto-pr --help
 ```
 
 ### 환경변수
@@ -100,10 +97,10 @@ ai-pr --help
 ## 로컬 개발
 
 ```bash
-git clone <this-repo>
-cd ai-pr
-npm link          # 전역에 심볼릭 링크 → ai-pr 명령 사용 가능
-ai-pr --dry-run   # 다른 git 저장소에서 테스트
+git clone https://github.com/chaemin58/auto-pr.git
+cd auto-pr
+npm link            # 전역에 심볼릭 링크 → auto-pr 명령 사용 가능
+auto-pr --dry-run   # 다른 git 저장소에서 테스트
 ```
 
 ## License

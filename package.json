@@ -1,9 +1,10 @@
 {
-  "name": "ai-pr",
+  "name": "auto-pr",
   "version": "0.1.0",
   "description": "Generate a PR description from your branch diff with AI and open a prefilled GitHub PR page.",
   "type": "module",
   "bin": {
+    "auto-pr": "bin/ai-pr.js",
     "ai-pr": "bin/ai-pr.js"
   },
   "engines": {
@@ -22,5 +23,14 @@
     "gemini",
     "cli"
   ],
-  "license": "MIT"
+  "author": "chaemin58",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chaemin58/auto-pr.git"
+  },
+  "homepage": "https://github.com/chaemin58/auto-pr#readme",
+  "bugs": {
+    "url": "https://github.com/chaemin58/auto-pr/issues"
+  }
 }
