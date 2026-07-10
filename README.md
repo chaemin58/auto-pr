@@ -9,16 +9,19 @@
 
 ## 설치
 
-### 1) 전역 설치 후 어디서든 사용
+아직 npm 레지스트리에는 올리지 않았습니다. **GitHub에서 직접 전역 설치**하세요:
 
 ```bash
-npm install -g ai-pr
+npm install -g github:chaemin58/auto-pr
 ```
 
-### 2) 설치 없이 실행
+> ⚠️ `npm install -g ai-pr` (npm 레지스트리)는 아직 동작하지 않습니다.
+> 이 도구를 `npm publish` 하기 전까지는 위의 GitHub 설치를 사용하세요.
+
+**업데이트**(도구가 수정되면 다시 실행):
 
 ```bash
-npx ai-pr
+npm install -g github:chaemin58/auto-pr
 ```
 
 ## 사전 준비 (딱 한 번)
