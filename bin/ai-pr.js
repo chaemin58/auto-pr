@@ -171,7 +171,7 @@ async function generateBody({ apiKey, models, log, diff }) {
 - (핵심 변경사항을 항목별로. diff에 근거해서만. 세부 변경사항 (오타 수정 등)은 기입할 필요없음. 핵심 변경 사항만 간단히)
 
 ## 테스트 방법
-- (변경사항을 확인할 수 있는 단계별 절차 제안. AI 추정임을 감안해 검증 위주로 간단히 작성)
+- (변경사항을 확인할 수 있는 단계별 절차 제안. AI 추정임을 감안해 검증 위주로 아주 간단히 작성- 한 줄 정도로)
 
 [커밋 목록]
 ${log}
@@ -318,7 +318,6 @@ async function main() {
         "gemini-2.5-flash",
         "gemini-2.5-flash-lite",
         "gemini-flash-lite-latest",
-        "gemini-flash-latest",
       ];
 
   console.error("AI가 PR 본문 생성 중...");
