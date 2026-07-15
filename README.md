@@ -60,6 +60,7 @@ PR을 만들 **기능 브랜치**에서 실행하세요.
 
 ```bash
 auto-pr                 # base 브랜치 자동 감지 (origin 기본 브랜치)
+auto-pr main            # base 브랜치 지정 (--base main 과 동일)
 auto-pr --base main     # base 브랜치 지정
 auto-pr --print         # 브라우저 대신 콘솔에 본문만 출력
 auto-pr --dry-run       # AI 호출 없이 감지된 정보만 확인

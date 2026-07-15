@@ -11,10 +11,13 @@ import { homedir } from "node:os";
 const HELP = `auto-pr — AI로 PR 본문을 만들어 GitHub PR 생성 페이지를 미리 채워 엽니다.
 
 사용법:
-  auto-pr [옵션]   (ai-pr 로도 실행 가능)
+  auto-pr [base] [옵션]   (ai-pr 로도 실행 가능)
+
+  auto-pr           origin 기본 브랜치를 향해 PR
+  auto-pr main      main 브랜치를 향해 PR
 
 옵션:
-  -b, --base <branch>   비교 기준 브랜치 (기본: origin 기본 브랜치 자동 감지)
+  -b, --base <branch>   비교 기준 브랜치 (위치 인자와 동일. 기본: origin 기본 브랜치 자동 감지)
       --model <name>    Gemini 모델 지정 (미지정 시 여러 모델 자동 폴백)
       --print           브라우저를 열지 않고 본문을 콘솔에 출력
       --dry-run         AI 호출 없이 감지된 정보(브랜치/base/diff 크기)만 확인
@@ -42,6 +45,7 @@ function fail(msg) {
 // 간단한 인자 파서 (의존성 없이)
 function parseArgs(argv) {
   const opts = { print: false, dryRun: false };
+  let positionalBase;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-h" || a === "--help") opts.help = true;
@@ -49,7 +53,18 @@ function parseArgs(argv) {
     else if (a === "--dry-run") opts.dryRun = true;
     else if (a === "-b" || a === "--base") opts.base = argv[++i];
     else if (a === "--model") opts.model = argv[++i];
-    else fail(`알 수 없는 옵션: ${a}\n\n${HELP}`);
+    else if (a.startsWith("-")) fail(`알 수 없는 옵션: ${a}\n\n${HELP}`);
+    else if (positionalBase !== undefined)
+      fail(`base 브랜치는 하나만 지정할 수 있습니다: '${positionalBase}', '${a}'`);
+    else positionalBase = a;
+  }
+  if (positionalBase !== undefined) {
+    if (opts.base !== undefined && opts.base !== positionalBase) {
+      fail(
+        `base 브랜치가 두 번 지정됐습니다: '${positionalBase}' 와 --base ${opts.base}`,
+      );
+    }
+    opts.base = positionalBase;
   }
   return opts;
 }
